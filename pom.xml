@@ -10,7 +10,7 @@
 		<version>2.3.0</version>
 	</parent>
 
-    <artifactId>rollease</artifactId>
+    <artifactId>org.openhab.binding.rollease</artifactId>
 
 	<name>Rollease Binding</name>
 	<packaging>eclipse-plugin</packaging>
@@ -22,5 +22,23 @@
 			<url>http://download.eclipse.org/releases/neon</url>
 		</repository>
 	</repositories>
-
+	   
+    <dependencies>
+        <!-- For some reason OH 2.3.0 isn't pulling in the units-of-measurement library -->
+        <dependency>
+            <groupId>javax.measure</groupId>
+            <artifactId>unit-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>tec.uom.lib</groupId>
+            <artifactId>uom-lib-common</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>tec.uom</groupId>
+            <artifactId>uom-se</artifactId>
+            <version>1.0.9</version>
+        </dependency>
+    </dependencies>
 </project>
