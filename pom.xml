@@ -10,7 +10,7 @@
 		<version>2.3.0</version>
 	</parent>
 
-	<artifactId>org.openhab.binding.rollease</artifactId>
+    <artifactId>rollease</artifactId>
 
 	<name>Rollease Binding</name>
 	<packaging>eclipse-plugin</packaging>

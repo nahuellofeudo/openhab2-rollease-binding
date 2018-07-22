@@ -21,7 +21,7 @@ class Pinger implements Runnable {
         int counter = 0;
         while (true) {
             try {
-                Thread.sleep(30000);
+                Thread.sleep(20000);
                 if (counter == 5) {
                     // Every minute pull the whole hub status instead of just pinging
                     logger.info("Refreshing hub state...");

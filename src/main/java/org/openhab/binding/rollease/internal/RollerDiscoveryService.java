@@ -9,6 +9,7 @@ import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
+import org.openhab.binding.rollease.Utils;
 import org.openhab.binding.rollease.handler.RollerHandler;
 import org.osgi.service.component.annotations.Component;
 
@@ -42,10 +43,9 @@ public class RollerDiscoveryService extends AbstractDiscoveryService {
     }
 
     public void addRoller(Roller newRoller, Bridge bridge) {
-        ThingUID thingUID = RollerHandler.thingUID(newRoller.getId());
+        ThingUID thingUID = Utils.thingUID(newRoller.getId());
         DiscoveryResult discoveryResult = DiscoveryResultBuilder.create(thingUID).withBridge(bridge.getUID())
                 .withLabel(newRoller.getName()).withThingType(RollerHandler.THING_TYPE_UID).build();
-
         this.thingDiscovered(discoveryResult);
     }
 

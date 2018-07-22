@@ -40,23 +40,23 @@ public class RollerListParser implements com.nahuellofeudo.rolleasecontroller.re
             llio.readAndAssert(0x0f, 0x00, 0x01, 0x00, 0x04, 0x0e, 0x00);
             String name = llio.readLSBString();
             llio.readAndAssert(0x02, 0x01, 0x02, 0x00, 0x31, 0x02, 0x03, 0x01, 0x01, 0x00);
-            int unknown1 = llio.readByte();
+            int batteryLevel = llio.readByte();
             llio.readAndAssert(0x04, 0x01, 0x03);
             int state = llio.readShort();
             int percentClosed = llio.readByte();
             int unknown2 = llio.readByte();
 
             if (hub.getRollerById(id) == null) {
-                Roller newRoller = new Roller(id, name, roomId, unknown1, state, percentClosed, unknown2);
+                Roller newRoller = new Roller(id, name, roomId, batteryLevel, state, percentClosed, unknown2);
                 logger.info(String.format("New roller: %s", newRoller.toString()));
                 this.hub.addRoller(newRoller);
             } else {
                 Roller existingRoller = hub.getRollerById(id);
-                logger.debug(
+                logger.info(
                         String.format("Updating existing roller %016x: Closed: %d%% | Battery?: %d%% | Unknown: %2x",
-                                id, percentClosed, unknown1, unknown2));
+                                id, percentClosed, batteryLevel, unknown2));
                 existingRoller.setPercentClosed(percentClosed);
-                existingRoller.setUnknown1(unknown1);
+                existingRoller.setBatteryLevel(batteryLevel);
                 existingRoller.setUnknown2(unknown2);
             }
         }

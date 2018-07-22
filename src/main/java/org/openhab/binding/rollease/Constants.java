@@ -29,5 +29,9 @@ public class Constants {
 
     // List of all Channel ids
     public static final String PERCENTAGE_CLOSED = "percentage-closed";
+    public static final String BATTERY_LEVEL = "battery-level";
+
+    // Keys to store model objects as metadata
+    public static final String ROLLER_OBJECT = "roller";
 
 }

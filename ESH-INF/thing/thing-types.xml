@@ -25,16 +25,23 @@
 		<description>Rollease roller shade</description>
 
 		<channels>
-			<channel id="percentage-closed" typeId="percentage-closed">
-			</channel>
+            <channel id="percentage-closed" typeId="percentage-closed"/>
+            <channel id="battery-level" typeId="battery-level"/>
 		</channels>
 	</thing-type>
 
-	<channel-type id="percentage-closed">
-		<item-type>Number</item-type>
-		<label>Set position</label>
-		<description>Position of the roller blind (100% = closed)</description>
-		<category>Position</category>
-		<state min="0" max="100" step="1" pattern="%d%%" readOnly="false" />
-	</channel-type>
+    <channel-type id="percentage-closed">
+        <item-type>Number</item-type>
+        <label>Position</label>
+        <description>Position of the roller blind (100% = closed)</description>
+        <category>Position</category>
+        <state min="0" max="100" step="1" pattern="%d%%" readOnly="false" />
+    </channel-type>
+    <channel-type id="battery-level">
+        <item-type>Number</item-type>
+        <label>Battery level</label>
+        <description>Roller's battery level</description>
+        <category>Battery</category>
+        <state min="0" max="100" step="1" pattern="%d%%" readOnly="true" />
+    </channel-type>
 </thing:thing-descriptions>
