@@ -22,8 +22,6 @@ import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.AdjustPositi
 import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.AuthInfoResponseParser;
 import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.HubInfoEndParser;
 import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.HubInfoResponseParser;
-import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.NullResponseParser;
-import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.PingResponseParser;
 import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.RollerListParser;
 import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.RoomListParser;
 import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.UnknownMessageParser;
@@ -95,7 +93,7 @@ public class Controller {
         llio.flush();
 
         // Expect login response
-        llio.readAndAssert(Constants.HEADER, Constants.ACK_RESPONSE);
+        llio.readAndAssert(Constants.HEADER, Constants.SETID_RESPONSE);
     }
 
     public void setUnknown1() throws IOException, InterruptedException {
@@ -105,10 +103,10 @@ public class Controller {
         llio.writeBytes(0x11, 0x00, 0x15, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x02, 0x01, 0x00,
                 0x30, 0xff, 0xa9);
         llio.flush();
-        llio.readAndAssertHeader(Constants.UNKNOWN1_RESPONSE);
+        llio.readAndAssertHeader(Constants.UNKNOWN1_RESPONSE1);
         llio.readAndAssert(0x16, 0x00, 0x0f, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x06,
                 0x00, 0x12, 0x03, 0x11, 0x07, 0x38, 0x16, 0xff, 0x9d);
-        llio.readAndAssert(Constants.HEADER, Constants.ACK_RESPONSE);
+        llio.readAndAssert(Constants.HEADER, Constants.UNKNOWN1_RESPONSE2);
     }
 
     public void adjustPosition(Roller roller, int closedPercentage) throws IOException, InterruptedException {
@@ -151,36 +149,18 @@ public class Controller {
      */
     public void registerHeaderParsers() throws Exception {
         // Register header parsers
-        headerParser.registerMessageParser(new NullResponseParser(), Constants.HEADER, Constants.ACK_RESPONSE);
+        // headerParser.registerMessageParser(new NullResponseParser(), Constants.HEADER, Constants.SETID_RESPONSE);
 
-        headerParser.registerMessageParser(new PingResponseParser(llio), Constants.HEADER, Constants.PING_RESPONSE);
-
-        headerParser.registerMessageParser(new HubInfoResponseParser(hub, llio), Constants.HEADER,
-                Constants.GET_HUB_INFO_RESPONSE);
-
-        headerParser.registerMessageParser(new AuthInfoResponseParser(hub, llio), Constants.HEADER,
-                Constants.GET_HUB_INFO_AUTH);
-
-        headerParser.registerMessageParser(new AuthInfoResponseParser(hub, llio), Constants.HEADER, 0xf8,
-                Constants.GET_HUB_INFO_AUTH);
-
-        headerParser.registerMessageParser(new RoomListParser(hub, llio), Constants.HEADER, Constants.GET_ITEMS_ROOMS);
-
-        headerParser.registerMessageParser(new RoomListParser(hub, llio), Constants.HEADER, 0x82,
-                Constants.GET_ITEMS_ROOMS);
-
-        headerParser.registerMessageParser(new RollerListParser(hub, llio), Constants.HEADER, 0xf8,
-                Constants.GET_ITEMS_ROLLERS);
-
-        headerParser.registerMessageParser(new HubInfoEndParser(hub, llio), Constants.HEADER, Constants.GET_ITEMS_END);
-
-        headerParser.registerMessageParser(new AdjustPositionResponse1Parser(hub, llio), Constants.HEADER,
-                Constants.ADJUST_POSITION_RESPONSE1);
-
-        headerParser.registerMessageParser(new AdjustPositionResponse2Parser(hub, llio), Constants.HEADER,
-                Constants.ADJUST_POSITION_RESPONSE2);
-
-        headerParser.setDefaultParser(new UnknownMessageParser(llio));
+        headerParser.registerMessageParser(new HubInfoResponseParser(hub));
+        headerParser.registerMessageParser(new AuthInfoResponseParser(hub));
+        headerParser.registerMessageParser(new AuthInfoResponseParser(hub));
+        headerParser.registerMessageParser(new RoomListParser(hub));
+        headerParser.registerMessageParser(new RoomListParser(hub));
+        headerParser.registerMessageParser(new RollerListParser(hub));
+        headerParser.registerMessageParser(new HubInfoEndParser(hub));
+        headerParser.registerMessageParser(new AdjustPositionResponse1Parser(hub));
+        headerParser.registerMessageParser(new AdjustPositionResponse2Parser(hub));
+        headerParser.setDefaultParser(new UnknownMessageParser());
     }
 
     private void getHubInfo(boolean isInitializing) throws IOException, InterruptedException {
@@ -296,8 +276,7 @@ public class Controller {
 
                 // Run
                 do {
-                    messageParser = headerParser.parseNextHeader();
-                    messageParser.parse();
+                    headerParser.parseNext();
                 } while (true);
             } catch (Exception e) {
                 hub.setCurrentStatus(HubStatus.ERROR);

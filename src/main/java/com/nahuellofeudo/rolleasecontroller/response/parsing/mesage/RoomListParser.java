@@ -1,51 +1,46 @@
 package com.nahuellofeudo.rolleasecontroller.response.parsing.mesage;
 
-import com.nahuellofeudo.rolleasecontroller.LowLevelIO;
-import com.nahuellofeudo.rolleasecontroller.model.Hub;
-import com.nahuellofeudo.rolleasecontroller.model.Room;
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import com.nahuellofeudo.rolleasecontroller.model.Hub;
+import com.nahuellofeudo.rolleasecontroller.model.Room;
 
-public class RoomListParser implements com.nahuellofeudo.rolleasecontroller.response.parsing.MessageParser<Object> {
-  Logger logger = LoggerFactory.getLogger(RoomListParser.class);
-  Hub response;
-  LowLevelIO llio;
+public class RoomListParser extends BaseMessageParser {
+    Logger logger = LoggerFactory.getLogger(RoomListParser.class);
 
-  public RoomListParser(Hub response, LowLevelIO llio) {
-    this.response = response;
-    this.llio = llio;
-  }
-
-  @Override
-  public Object parse() throws IOException {
-    logger.info("Parsing Room List...");
-    llio.readAndAssertHeader();
-
-    llio.readAndAssert(0x70, 0x00, 0x01, 0x01); // ???
-    llio.readLSBShort();                        // Sequence number. Ignore
-
-    llio.readAndAssert(
-            0x00, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x10, 0x00, 0x01);
-
-    int numberOfRooms = llio.readShort();
-
-    for (; numberOfRooms > 0; numberOfRooms--) {
-      // Parse a room
-      llio.readAndAssert(0x00, 0x02); // Header
-      String id = llio.readLSBString();
-      llio.readAndAssert(0x0f, 0x00, 0x01, 0x00);
-      int number = llio.readByte();
-      llio.readAndAssert(0x0e, 0x00);
-      String name = llio.readLSBString();
-      response.addRoom(new Room(id, name, number));
+    public RoomListParser(Hub hub) {
+        super(hub);
     }
 
-    // Read checksum
-    llio.readShort();
+    @Override
+    public Integer[] getSignature() {
+        return new Integer[] { 0x01, 0x01 };
+    }
 
-    return null;
-  }
+    @Override
+    public void parse(Integer[] bytes) throws IOException {
+        logger.info("Parsing Room List...");
+        int ptr = 0x0e;
+
+        int numberOfRooms = bytes[ptr];
+        ptr++;
+
+        for (int x = 0; x < numberOfRooms; x++) {
+
+            // Parse room Id
+            ptr += 2;
+            String roomId = this.toDynamicString(bytes, ptr);
+            ptr += 2 + roomId.length();
+
+            // Parse room name
+            ptr += 7;
+            String roomName = this.toDynamicString(bytes, ptr);
+            ptr += 2 + roomName.length();
+
+            this.hub.addRoom(new Room(roomId, roomName, x));
+        }
+    }
 }

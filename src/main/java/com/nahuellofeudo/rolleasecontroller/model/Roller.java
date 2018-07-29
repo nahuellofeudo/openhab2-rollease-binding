@@ -10,19 +10,15 @@ public class Roller {
     private String name;
     private String roomId;
     private int batteryLevel;
-    private int state;
     private int percentClosed;
-    private long unknown2;
     private Set<RollerStateListener> stateListeners;
 
-    public Roller(long id, String name, String roomId, int unknown1, int state, int percentClosed, long unknown2) {
+    public Roller(long id, String name, String roomId, int unknown1, int percentClosed) {
         this.id = id;
         this.name = name;
         this.roomId = roomId;
         this.batteryLevel = unknown1;
-        this.state = state;
         this.percentClosed = percentClosed;
-        this.unknown2 = unknown2;
         this.stateListeners = new HashSet<>();
     }
 
@@ -32,8 +28,8 @@ public class Roller {
 
     @Override
     public String toString() {
-        return String.format("Roller ID: %016x | %s | Batt %d%% ?| State? %02x | Pos: %d%% | ??? %02x", this.id,
-                this.name, this.batteryLevel, this.state, this.percentClosed, unknown2);
+        return String.format("Roller ID: %016x | %s | Batt %d%% ?| Pos: %d%%", this.id, this.name, this.batteryLevel,
+                this.percentClosed);
     }
 
     public int getPercentClosed() {
@@ -77,15 +73,7 @@ public class Roller {
 
     }
 
-    public void setState(int state) {
-        this.state = state;
-    }
-
     public int getBatteryLevel() {
         return batteryLevel;
-    }
-
-    public void setUnknown2(long unknown2) {
-        this.unknown2 = unknown2;
     }
 }

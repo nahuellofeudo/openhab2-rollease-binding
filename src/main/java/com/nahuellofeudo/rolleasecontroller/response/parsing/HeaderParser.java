@@ -1,130 +1,115 @@
 package com.nahuellofeudo.rolleasecontroller.response.parsing;
 
-import com.nahuellofeudo.rolleasecontroller.LowLevelIO;
-import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.UnknownMessageParser;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.rmi.server.ExportException;
-import java.util.*;
+import com.nahuellofeudo.rolleasecontroller.LowLevelIO;
 
 public class HeaderParser {
-  Logger logger = LoggerFactory.getLogger(HeaderParser.class);
-  Map<List<Integer>, MessageParser> parsers;
-  MessageParser defaultParser;
-  LowLevelIO llio;
+    Logger logger = LoggerFactory.getLogger(HeaderParser.class);
+    List<MessageParser> parsers;
+    MessageParser defaultParser;
+    LowLevelIO llio;
 
-  public HeaderParser(LowLevelIO llio) {
-    parsers = new HashMap<>();
-    this.llio = llio;
-  }
-
-  public void registerMessageParser(MessageParser parser, List<Integer> signature) throws Exception {
-    List<Integer> path = new LinkedList<>();
-
-    for (Integer s : signature) {
-      path.add(s);
-      if (this.getParserFor(path) != null) {
-        throw new Exception("The signature already exists:");
-      }
-    }
-    this.parsers.put(signature, parser);
-  }
-
-  public void registerMessageParser(MessageParser parser, Integer... signature) throws Exception {
-    registerMessageParser(parser, Arrays.asList(signature));
-  }
-
-  public void registerMessageParser(MessageParser parser, Long signature1, Integer signature2, Long signature3) throws Exception {
-    List<Integer> signature = new LinkedList<>();
-
-    signature.add((int) (signature1 >> 24) & 0xff);
-    signature.add((int) (signature1 >> 16) & 0xff);
-    signature.add((int) (signature1 >> 8) & 0xff);
-    signature.add((int) (signature1 >> 0) & 0xff);
-
-    signature.add(signature2);
-
-    signature.add((int) (signature3 >> 24) & 0xff);
-    signature.add((int) (signature3 >> 16) & 0xff);
-    signature.add((int) (signature3 >> 8) & 0xff);
-    signature.add((int) (signature3 >> 0) & 0xff);
-
-    registerMessageParser(parser, signature);
-  }
-
-  public void registerMessageParser(MessageParser parser, Long signature1, Long signature2) throws Exception {
-    List<Integer> signature = new LinkedList<>();
-
-    signature.add((int) (signature1 >> 24) & 0xff);
-    signature.add((int) (signature1 >> 16) & 0xff);
-    signature.add((int) (signature1 >> 8) & 0xff);
-    signature.add((int) (signature1 >> 0) & 0xff);
-
-    signature.add((int) (signature2 >> 24) & 0xff);
-    signature.add((int) (signature2 >> 16) & 0xff);
-    signature.add((int) (signature2 >> 8) & 0xff);
-    signature.add((int) (signature2 >> 0) & 0xff);
-
-    registerMessageParser(parser, signature);
-  }
-
-  public MessageParser getParserFor(List<Integer> signature) {
-    return this.parsers.get(signature);
-  }
-
-  /**
-   * Reads a series of bytes until a header matches
-   *
-   * @return the appropriate messageParser
-   */
-  public MessageParser parseNextHeader() throws IOException {
-    List<Integer> signature = new LinkedList<>();
-
-    for (int i = 0; i < 4; i++) {
-      Integer b = llio.readByte();
-      signature.add(b);
+    public HeaderParser(LowLevelIO llio) {
+        parsers = new ArrayList<>(20);
+        this.llio = llio;
     }
 
-    int responseCodeLength = 4;
-    Integer b = llio.readByte();
-    signature.add(b);
-    if ((b & 0xff) > 0x7f) {
-      // Extended header. Read this byte and 4 more
-      responseCodeLength = 5;
+    public void registerMessageParser(MessageParser parser) throws Exception {
+        this.parsers.add(parser);
     }
 
-    for (int read = 1; read < responseCodeLength; read++) {
-      b = llio.readByte();
-      signature.add(b);
+    /**
+     * Reads a series of bytes until a header matches
+     *
+     * @return the appropriate messageParser
+     */
+    public void parseNext() throws IOException {
+        Integer messageType[] = new Integer[4];
+        boolean hadExtendedHeader = false;
+
+        // Header (version?)
+        llio.readAndAssert(0x00, 0x00, 0x00, 0x03);
+
+        messageType[0] = llio.readByte();
+        if (messageType[0] > 127) {
+            // We have an extended header. Ignore it
+            messageType[0] = llio.readByte();
+            hadExtendedHeader = true;
+        }
+        messageType[1] = llio.readByte();
+        messageType[2] = llio.readByte();
+        messageType[3] = llio.readByte();
+
+        switch (messageType[0]) {
+            case 0x03:
+                switch (messageType[3]) {
+                    case 0x16:
+                        logger.info("Received ping response.");
+                        break;
+                    case 0x91:
+                        if (hadExtendedHeader) {
+                            this.loadAndParse();
+                        } else {
+                            logger.info("Received empty message.");
+                            break;
+                        }
+                    default:
+                        logger.warn("Received unknown header: [" + Integer.toString(16) + ", " + Integer.toString(16)
+                                + ", " + Integer.toString(16) + ", " + Integer.toString(16) + "]");
+                }
+                break;
+            default:
+                this.loadAndParse();
+        }
     }
 
-    MessageParser parser = this.getParserFor(signature);
-    if (parser != null) {
-      return parser;
-    } else {
-      logger.info(String.format(String.format("No signature found for header [%s] using default handler",
-              this.formatSignature(signature))));
-      return this.getDefaultParser();
+    /**
+     * Read header and length, load message into memory
+     * then identify correct parser and delegate the parsing into it
+     *
+     * @throws IOException
+     */
+    private void loadAndParse() throws IOException {
+        Integer bytes[];
+
+        llio.readAndAssertHeader();
+        int length = llio.readLSBShort();
+        bytes = new Integer[length];
+
+        for (int x = 0; x < length; x++) {
+            bytes[x] = llio.readByte();
+        }
+
+        Integer[] type = new Integer[] { bytes[0], bytes[1] };
+        MessageParser parser = this.getParserFor(type);
+        if (parser != null) {
+            parser.parse(bytes);
+        } else {
+            logger.error(String.format("Parser not found for type [%2xd, %2xd].", type[0], type[1]));
+            this.defaultParser.parse(bytes);
+        }
     }
-  }
 
-  private String formatSignature(List<Integer> signature) {
-    StringBuffer sb = new StringBuffer();
-
-    for (Integer b : signature) {
-      if (sb.length() != 0) sb.append(", ");
-      sb.append(String.format("%02x", b));
+    private MessageParser getParserFor(Integer[] type) {
+        for (MessageParser candidate : this.parsers) {
+            if (candidate.canParse(type)) {
+                return candidate;
+            }
+        }
+        return null;
     }
-    return sb.toString();
-  }
 
-  public MessageParser getDefaultParser() {
-    return defaultParser;
-  }
+    public MessageParser getDefaultParser() {
+        return defaultParser;
+    }
 
-  public void setDefaultParser(MessageParser defaultParser) {
-    this.defaultParser = defaultParser;
-  }
+    public void setDefaultParser(MessageParser defaultParser) {
+        this.defaultParser = defaultParser;
+    }
 }

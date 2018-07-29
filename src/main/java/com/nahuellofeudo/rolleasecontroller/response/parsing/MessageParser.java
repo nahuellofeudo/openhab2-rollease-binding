@@ -1,8 +1,12 @@
 package com.nahuellofeudo.rolleasecontroller.response.parsing;
 
 import java.io.IOException;
-import java.io.InputStream;
 
-public interface MessageParser<T> {
-  public T parse() throws IOException;
+public interface MessageParser {
+    public Integer[] getSignature();
+
+    public void parse(Integer[] bytes) throws IOException;
+
+    public boolean canParse(Integer[] type);
+
 }

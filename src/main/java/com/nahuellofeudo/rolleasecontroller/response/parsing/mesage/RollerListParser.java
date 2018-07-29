@@ -5,64 +5,71 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nahuellofeudo.rolleasecontroller.LowLevelIO;
 import com.nahuellofeudo.rolleasecontroller.model.Hub;
 import com.nahuellofeudo.rolleasecontroller.model.Roller;
 
-public class RollerListParser implements com.nahuellofeudo.rolleasecontroller.response.parsing.MessageParser<Object> {
+public class RollerListParser extends BaseMessageParser {
     private Logger logger = LoggerFactory.getLogger(RollerListParser.class);
-    private Hub hub;
-    private LowLevelIO llio;
 
-    public RollerListParser(Hub hub, LowLevelIO llio) {
-        this.hub = hub;
-        this.llio = llio;
+    private static int ROLLER_DESCRIPTOR_LENGTH = 54;
+
+    public RollerListParser(Hub hub) {
+        super(hub);
     }
 
     @Override
-    public Object parse() throws IOException {
+    public Integer[] getSignature() {
+        return new Integer[] { 0x21, 0x01 };
+    }
+
+    @Override
+    public void parse(Integer[] bytes) throws IOException {
         logger.info("Parsing Roller List...");
+        int ptr = 0x0e;
 
-        llio.readAndAssertHeader();
-        llio.readAndAssert(0x66, 0x01, 0x21, 0x01);
-        llio.readLSBShort(); // Sequence number. Ignore
+        int numberOfRollers = bytes[ptr];
+        ptr++;
 
-        llio.readAndAssert(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00, 0x01, 0x00);
+        for (int roller = 0; roller < numberOfRollers; roller++) {
 
-        int numberOfRollers = llio.readByte();
+            // Parse Roller ID
+            ptr += 4;
+            long id = this.toLongNumber(bytes, ptr, 6);
+            ptr += 6;
 
-        for (; numberOfRollers > 0; numberOfRollers--) {
-            llio.readAndAssert(0x01, 0x01, 0x06, 0x00);
+            // Parse room ID
+            ptr += 2;
+            String roomId = this.toDynamicString(bytes, ptr);
+            ptr += 2 + roomId.length();
 
-            long id = llio.readLSBNumber(6);
-            llio.readAndAssert(0x00, 0x02);
-            String roomId = llio.readLSBString();
-            llio.readAndAssert(0x0f, 0x00, 0x01, 0x00, 0x04, 0x0e, 0x00);
-            String name = llio.readLSBString();
-            llio.readAndAssert(0x02, 0x01, 0x02, 0x00, 0x31, 0x02, 0x03, 0x01, 0x01, 0x00);
-            int batteryLevel = llio.readByte();
-            llio.readAndAssert(0x04, 0x01, 0x03);
-            int state = llio.readShort();
-            int percentClosed = llio.readByte();
-            int unknown2 = llio.readByte();
+            // Parse roller name
+            ptr += 7;
+            String name = this.toDynamicString(bytes, ptr);
+            ptr += 2 + name.length();
+
+            // Parse Battery level
+            ptr += 0x0a;
+            int batteryLevel = bytes[ptr];
+            ptr += 1;
+
+            // Parse Percent Closed
+            ptr += 5;
+            int percentClosed = bytes[ptr];
+            ptr += 2;
 
             if (hub.getRollerById(id) == null) {
-                Roller newRoller = new Roller(id, name, roomId, batteryLevel, state, percentClosed, unknown2);
+                Roller newRoller = new Roller(id, name, roomId, batteryLevel, percentClosed);
                 logger.info(String.format("New roller: %s", newRoller.toString()));
                 this.hub.addRoller(newRoller);
             } else {
                 Roller existingRoller = hub.getRollerById(id);
-                logger.info(
-                        String.format("Updating existing roller %016x: Closed: %d%% | Battery?: %d%% | Unknown: %2x",
-                                id, percentClosed, batteryLevel, unknown2));
+                logger.info(String.format("Updating existing roller %016x: Closed: %d%% | Battery?: %d%%", id,
+                        percentClosed, batteryLevel));
                 existingRoller.setPercentClosed(percentClosed);
                 existingRoller.setBatteryLevel(batteryLevel);
-                existingRoller.setUnknown2(unknown2);
             }
         }
-
-        llio.readShort(); // Ignore Checksum
-        return null;
+        return;
     }
 
 }
