@@ -8,6 +8,13 @@ import org.slf4j.LoggerFactory;
 import com.nahuellofeudo.rolleasecontroller.model.Hub;
 import com.nahuellofeudo.rolleasecontroller.model.Room;
 
+/**
+ * Parses the list of rooms.
+ * It's not clear at this point if this information is useful or not.
+ *
+ * @author Nahuel Lofeudo
+ *
+ */
 public class RoomListParser extends BaseMessageParser {
     Logger logger = LoggerFactory.getLogger(RoomListParser.class);
 

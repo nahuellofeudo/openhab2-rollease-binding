@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This object pings the controller every 30 seconds or so, to prevent it from closing the connection
+ *
+ * @author Nahuel Lofeudo
+ *
  */
 class Pinger implements Runnable {
     Logger logger = LoggerFactory.getLogger(Pinger.class);

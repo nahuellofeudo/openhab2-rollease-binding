@@ -7,6 +7,12 @@ import org.slf4j.LoggerFactory;
 
 import com.nahuellofeudo.rolleasecontroller.model.Hub;
 
+/**
+ * Parses the message that the hub sends at the end of the full status.
+ *
+ * @author Nahuel Lofeudo
+ *
+ */
 public class HubInfoEndParser extends BaseMessageParser {
     Logger logger = LoggerFactory.getLogger(HubInfoEndParser.class);
 

@@ -32,11 +32,14 @@ import org.slf4j.LoggerFactory;
  * @author Nahuel Lofeudo - Initial contribution
  */
 public class RollerHandler extends BaseThingHandler {
-    private final Logger logger = LoggerFactory.getLogger(RollerHandler.class);
     public static final ThingTypeUID THING_TYPE_UID = new ThingTypeUID(Constants.BINDING_ID, Constants.ROLLER);
+
+    private final Logger logger = LoggerFactory.getLogger(RollerHandler.class);
+    private final CancelableScheduledExecutorService executor;
 
     public RollerHandler(Thing thing) {
         super(thing);
+        this.executor = new CancelableScheduledExecutorService();
     }
 
     @Override
@@ -47,7 +50,9 @@ public class RollerHandler extends BaseThingHandler {
         }
         if (command.getClass().equals(DecimalType.class)) {
             DecimalType position = (DecimalType) command;
-            this.getHubHandler().setPosition(channelUID.getThingUID().getId(), position);
+            String rollerId = channelUID.getThingUID().getId();
+            this.executor.schedule(rollerId,
+                    new PositionUpdateTask(this.getHubHandler(), rollerId, position, this.executor));
         }
 
     }
@@ -62,5 +67,4 @@ public class RollerHandler extends BaseThingHandler {
             return hubHandler;
         }
     }
-
 }

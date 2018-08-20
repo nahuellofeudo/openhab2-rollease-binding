@@ -7,6 +7,13 @@ import org.slf4j.LoggerFactory;
 
 import com.nahuellofeudo.rolleasecontroller.model.Hub;
 
+/**
+ * Parser for the initial hub response message.
+ * The only interesting item here is the firmware version.
+ *
+ * @author Nahuel Lofeudo
+ *
+ */
 public class HubInfoResponseParser extends BaseMessageParser {
     Logger logger = LoggerFactory.getLogger(HubInfoResponseParser.class);
 

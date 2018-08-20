@@ -14,9 +14,7 @@ import com.nahuellofeudo.rolleasecontroller.listener.HubStatusListener.HubStatus
 import com.nahuellofeudo.rolleasecontroller.model.Hub;
 import com.nahuellofeudo.rolleasecontroller.model.Roller;
 import com.nahuellofeudo.rolleasecontroller.response.ConnectResponse;
-import com.nahuellofeudo.rolleasecontroller.response.LoginResponse;
 import com.nahuellofeudo.rolleasecontroller.response.parsing.HeaderParser;
-import com.nahuellofeudo.rolleasecontroller.response.parsing.MessageParser;
 import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.AdjustPositionResponse1Parser;
 import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.AdjustPositionResponse2Parser;
 import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.AuthInfoResponseParser;
@@ -26,6 +24,22 @@ import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.RollerListPa
 import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.RoomListParser;
 import com.nahuellofeudo.rolleasecontroller.response.parsing.mesage.UnknownMessageParser;
 
+/**
+ * All the interaction with the hub (encoding and sending commands, reading responses)
+ * is here.
+ * Most is in the form of sequences of bytes that replay a known-good conversation
+ * between the hub and The Shade Store's Android app, replacing some bytes with actual
+ * values where appropriate.
+ * The meaning of most of the bytes in the messages below is still unknown to me,
+ * but I was able to reverse engineer enough to make the hub what I need it to do,
+ * and that's enough for now.
+ *
+ * TODO:
+ * * Find where the rollers' battery level is encoded
+ *
+ * @author Nahuel Lofeudo
+ *
+ */
 public class Controller {
     Logger logger = LoggerFactory.getLogger(Controller.class);
     LowLevelIO llio;
@@ -49,18 +63,31 @@ public class Controller {
         this.hub = hub;
     }
 
+    /**
+     * Sends the initial message. Blocks until it receives the response
+     *
+     * @return a ConnectResponse object witht he device's ID
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public ConnectResponse connect() throws IOException, InterruptedException {
-        // Send command
         llio.writeInts(Constants.HEADER, Constants.CONNECT_COMMAND);
         llio.flush();
 
-        // read responses
         llio.readAndAssert(Constants.HEADER, Constants.CONNECT_RESPONSE);
         String deviceid = llio.readString();
         return new ConnectResponse(deviceid);
     }
 
-    public LoginResponse login(ConnectResponse deviceID) throws IOException, InterruptedException {
+    /**
+     * Sends what appears to be a login command of some sort.
+     * Blocks until it receives a response from the hub.
+     *
+     * @param deviceID
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public void login(ConnectResponse deviceID) throws IOException, InterruptedException {
         // Send login command
         llio.writeInts(Constants.HEADER, Constants.LOGIN_COMMAND);
         llio.writeString(deviceID.getIdentifier());
@@ -74,9 +101,15 @@ public class Controller {
             throw new ProtocolException(String.format("Login response value is wrong: %x", val));
         }
         llio.flush();
-        return new LoginResponse();
+        return;
     }
 
+    /**
+     * Sends a ping to the hub. The response is received asynchronously in a separate thread.
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public void ping() throws IOException, InterruptedException {
         globalLock.acquire();
         // Send login command
@@ -85,6 +118,13 @@ public class Controller {
         globalLock.release();
     }
 
+    /**
+     * This command seems to be setting some kind of client id on the hub.
+     * No real clue of what it does.
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public void setid() throws IOException, InterruptedException {
         // Send login command
         llio.writeCommandHeader(Constants.SETID_COMMAND);
@@ -96,19 +136,38 @@ public class Controller {
         llio.readAndAssert(Constants.HEADER, Constants.SETID_RESPONSE);
     }
 
+    /**
+     * I have NO IDEA what this does, but without it the conversation doesn't work, so there.
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public void setUnknown1() throws IOException, InterruptedException {
         llio.writeCommandHeader(Constants.UNKNOWN1_COMMAND);
 
-        // WTF is this command?
+        // Send command
         llio.writeBytes(0x11, 0x00, 0x15, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x02, 0x01, 0x00,
                 0x30, 0xff, 0xa9);
         llio.flush();
+
+        // Read response
         llio.readAndAssertHeader(Constants.UNKNOWN1_RESPONSE1);
         llio.readAndAssert(0x16, 0x00, 0x0f, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0c, 0x00, 0x06,
                 0x00, 0x12, 0x03, 0x11, 0x07, 0x38, 0x16, 0xff, 0x9d);
+
+        // For some reason this command sends two responses back.
         llio.readAndAssert(Constants.HEADER, Constants.UNKNOWN1_RESPONSE2);
     }
 
+    /**
+     * Pretty much the only method that does anything useful around here.
+     * It sends the command to a roller to adjust its position
+     *
+     * @param roller           the Roller object that represents the roller to adjust
+     * @param closedPercentage The new position in the range 0% (all open) - 100% (all closed)
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public void adjustPosition(Roller roller, int closedPercentage) throws IOException, InterruptedException {
         globalLock.acquire();
         llio.writeCommandHeader(Constants.ADJUST_POSITION_COMMAND);
@@ -119,7 +178,7 @@ public class Controller {
         // Start calculating checksum
         llio.resetChecksum();
 
-        // Subtype?
+        // Type
         llio.writeBytes(0x22, 0x01);
         llio.writeSequenceNumber();
 
@@ -129,9 +188,11 @@ public class Controller {
         llio.writeBytes(0x06, 0x00);
         llio.writeLSBNumber(roller.getId(), 6);
 
-        // Position??
+        // ??
         llio.writeBytes(0x03, 0x01, 0x01, 0x00, 0x19);
         llio.writeBytes(0x04, 0x01, 0x03, 0x00, 0x01);
+
+        // Position
         llio.writeBytes((byte) closedPercentage, 0x00);
 
         // Checksum
@@ -142,15 +203,11 @@ public class Controller {
     }
 
     /**
-     * Infinite loop that updates the state of the Controller Information Structure
-     * (including rooms / rollers)
+     * Register all the different parsers for the multiple types of messages sent by the hub
      *
      * @throws Exception when something goes extremely wrong
      */
     public void registerHeaderParsers() throws Exception {
-        // Register header parsers
-        // headerParser.registerMessageParser(new NullResponseParser(), Constants.HEADER, Constants.SETID_RESPONSE);
-
         headerParser.registerMessageParser(new HubInfoResponseParser(hub));
         headerParser.registerMessageParser(new AuthInfoResponseParser(hub));
         headerParser.registerMessageParser(new AuthInfoResponseParser(hub));
@@ -163,6 +220,16 @@ public class Controller {
         headerParser.setDefaultParser(new UnknownMessageParser());
     }
 
+    /**
+     * Requests that the hub send all its status back to the client
+     * - General info
+     * - List of rooms
+     * - List of rollers (and their position)
+     *
+     * @param isInitializing true if this is being done as part of the initial connection step, false otherwise
+     * @throws IOException
+     * @throws InterruptedException
+     */
     private void getHubInfo(boolean isInitializing) throws IOException, InterruptedException {
         if (!isInitializing) {
             globalLock.acquire();
@@ -182,21 +249,32 @@ public class Controller {
         }
     }
 
+    /**
+     * Convenience method.
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public void getHubInfo() throws IOException, InterruptedException {
         this.getHubInfo(false);
     }
 
+    /**
+     * Convenience method.
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
     private void getInitialHubInfo() throws IOException, InterruptedException {
         this.getHubInfo(true);
     }
 
     /**
-     * Main method. It keeps the state of the state machine.
+     * Main method. It keeps the state of the state machine and catches errors / reconnects automatically.
      *
      * @throws Exception
      */
     public void mainLoop() {
-        MessageParser messageParser;
         Socket socket = null;
         OutputStream outputStream = null;
         InputStream inputStream = null;
@@ -205,8 +283,7 @@ public class Controller {
 
         while (true) {
             try {
-                //
-                // If we are reconnecting, clean up possible previous mess
+                // If we are reconnecting, clean up previous mess
                 boolean globalLockAcquired = globalLock.tryAcquire();
                 if (!globalLockAcquired && !reconnecting) {
                     logger.error("Re-entrant connection attempt while not reconnecting? **BUG**");
@@ -255,7 +332,7 @@ public class Controller {
                 logger.debug("Sending SetID controller...");
                 setid();
 
-                logger.debug("Sending Unknown Controller 1");
+                logger.debug("Sending Unknown command 1");
                 setUnknown1();
 
                 llio.setSequenceNumber(4);

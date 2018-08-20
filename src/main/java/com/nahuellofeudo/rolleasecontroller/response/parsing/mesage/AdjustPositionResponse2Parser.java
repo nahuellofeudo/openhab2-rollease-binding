@@ -8,6 +8,12 @@ import org.slf4j.LoggerFactory;
 import com.nahuellofeudo.rolleasecontroller.model.Hub;
 import com.nahuellofeudo.rolleasecontroller.model.Roller;
 
+/**
+ * Parse the second type of notification from the hub when a roller changes position
+ * 
+ * @author Nahuel Lofeudo
+ *
+ */
 public class AdjustPositionResponse2Parser extends BaseMessageParser {
     Logger logger = LoggerFactory.getLogger(AdjustPositionResponse2Parser.class);
 

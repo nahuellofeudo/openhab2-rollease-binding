@@ -7,6 +7,12 @@ import org.slf4j.LoggerFactory;
 
 import com.nahuellofeudo.rolleasecontroller.response.parsing.MessageParser;
 
+/**
+ * Consumes unknown messages and logs their contents.
+ *
+ * @author Nahuel Lofeudo
+ *
+ */
 public class UnknownMessageParser implements MessageParser {
     Logger logger = LoggerFactory.getLogger(UnknownMessageParser.class);
 

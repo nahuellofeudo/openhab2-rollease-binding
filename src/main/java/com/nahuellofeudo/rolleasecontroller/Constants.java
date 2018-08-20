@@ -1,5 +1,11 @@
 package com.nahuellofeudo.rolleasecontroller;
 
+/**
+ * Miscellaneous constants
+ *
+ * @author Nahuel Lofeudo
+ *
+ */
 public class Constants {
     public static String ID_STRING = "Smart_Id1_y:";
 

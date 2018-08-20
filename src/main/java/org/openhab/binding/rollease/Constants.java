@@ -18,7 +18,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * The {@link Constants} class defines common constants, which are
  * used across the whole binding.
  *
- * @author Nahuel Lofeudo - Initial contribution
+ * @author Nahuel Lofeudo
  */
 @NonNullByDefault
 public class Constants {

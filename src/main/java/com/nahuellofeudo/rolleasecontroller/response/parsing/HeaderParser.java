@@ -9,6 +9,14 @@ import org.slf4j.LoggerFactory;
 
 import com.nahuellofeudo.rolleasecontroller.LowLevelIO;
 
+/**
+ * Reads and parses message headers (first 8 o 9 bytes of the message),
+ * reads the body of the message (if applicable) and delegates the parsing to the
+ * concrete implementation of MessageParser appropriate for the message type.
+ *
+ * @author Nahuel Lofeudo
+ *
+ */
 public class HeaderParser {
     Logger logger = LoggerFactory.getLogger(HeaderParser.class);
     List<MessageParser> parsers;
@@ -36,6 +44,10 @@ public class HeaderParser {
         // Header (version?)
         llio.readAndAssert(0x00, 0x00, 0x00, 0x03);
 
+        /*
+         * There may be an extra byte > 0x80 between the 0x00000003 and the next value
+         * Why, you ask? That's an excellent question!
+         */
         messageType[0] = llio.readByte();
         if (messageType[0] > 127) {
             // We have an extended header. Ignore it
@@ -54,6 +66,10 @@ public class HeaderParser {
                         break;
                     case 0x91:
                         if (hadExtendedHeader) {
+                            /**
+                             * If (and only if) we had an extra byte > 0x80 between headers (see above)
+                             * then message type 0x03000091 has a body
+                             */
                             this.loadAndParse();
                         } else {
                             logger.info("Received empty message.");

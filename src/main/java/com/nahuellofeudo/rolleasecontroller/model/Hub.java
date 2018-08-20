@@ -11,6 +11,13 @@ import com.nahuellofeudo.rolleasecontroller.listener.HubStatusListener;
 import com.nahuellofeudo.rolleasecontroller.listener.HubStatusListener.HubStatus;
 import com.nahuellofeudo.rolleasecontroller.listener.RollerStateListener;
 
+/**
+ * Holds all the information for hub.
+ * It also implements a notification mechanism to inform listeners of changes in the hub's state/
+ * 
+ * @author Nahuel Lofeudo
+ *
+ */
 public class Hub {
     Map<String, Room> rooms;
     Map<Long, Roller> rollers;

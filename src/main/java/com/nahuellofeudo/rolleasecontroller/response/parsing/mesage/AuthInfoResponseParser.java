@@ -8,7 +8,10 @@ import org.slf4j.LoggerFactory;
 import com.nahuellofeudo.rolleasecontroller.model.Hub;
 
 /**
- * Authentication info
+ * Parse authentication info from hub
+ *
+ * @author Nahuel Lofeudo
+ *
  */
 public class AuthInfoResponseParser extends BaseMessageParser {
     Logger logger = LoggerFactory.getLogger(AuthInfoResponseParser.class);

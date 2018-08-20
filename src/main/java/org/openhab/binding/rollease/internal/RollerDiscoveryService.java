@@ -15,6 +15,13 @@ import org.osgi.service.component.annotations.Component;
 
 import com.nahuellofeudo.rolleasecontroller.model.Roller;
 
+/**
+ * Implements the service that injects rollers pulled from the hub into OpenHab.
+ * This saves time by not requiring users to manually register their rollers.
+ * 
+ * @author Nahuel Lofeudo
+ *
+ */
 @Component(service = DiscoveryService.class, immediate = true, configurationPid = "org.openhab.binding.rollease.discovery")
 public class RollerDiscoveryService extends AbstractDiscoveryService {
 
@@ -24,18 +31,15 @@ public class RollerDiscoveryService extends AbstractDiscoveryService {
 
     public RollerDiscoveryService(int timeout) throws IllegalArgumentException {
         super(timeout);
-        // TODO Auto-generated constructor stub
     }
 
     public RollerDiscoveryService(Set<ThingTypeUID> supportedThingTypes, int timeout,
             boolean backgroundDiscoveryEnabledByDefault) throws IllegalArgumentException {
         super(supportedThingTypes, timeout, backgroundDiscoveryEnabledByDefault);
-        // TODO Auto-generated constructor stub
     }
 
     public RollerDiscoveryService(Set<ThingTypeUID> supportedThingTypes, int timeout) throws IllegalArgumentException {
         super(supportedThingTypes, timeout);
-        // TODO Auto-generated constructor stub
     }
 
     @Override

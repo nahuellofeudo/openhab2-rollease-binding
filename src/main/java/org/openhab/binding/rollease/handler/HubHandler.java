@@ -55,8 +55,7 @@ public class HubHandler extends BaseBridgeHandler
 
     @Override
     public void handleCommand(@NonNull ChannelUID channelUID, Command command) {
-        // TODO Auto-generated method stub
-
+        // Nothing to see here, folks.
     }
 
     @Override
@@ -81,7 +80,7 @@ public class HubHandler extends BaseBridgeHandler
 
     public void setPosition(String id, DecimalType position) {
 
-        Roller roller = this.hub.getRollerById(Long.parseLong(id, 16));
+        Roller roller = this.getRollerFromId(id);
         try {
             hubController.adjustPosition(roller, position.intValue());
         } catch (Exception e) {
@@ -90,12 +89,12 @@ public class HubHandler extends BaseBridgeHandler
     }
 
     public void registerRollerListener(String id, RollerStateListener listener) {
-        Roller roller = this.hub.getRollerById(Long.parseLong(id, 16));
+        Roller roller = this.getRollerFromId(id);
         roller.addStateListener(listener);
     }
 
     public Roller getRollerFromId(String id) {
-        return this.hub.getRollerById(Long.parseLong(id));
+        return this.hub.getRollerById(Long.parseLong(id, 16));
     }
 
     /*

@@ -6,6 +6,12 @@ import com.nahuellofeudo.rolleasecontroller.LowLevelIO;
 import com.nahuellofeudo.rolleasecontroller.model.Hub;
 import com.nahuellofeudo.rolleasecontroller.response.parsing.MessageParser;
 
+/**
+ * Base class for all message parser. Mostly contains utility methods to parse common data.
+ *
+ * @author nahuel
+ *
+ */
 public abstract class BaseMessageParser implements MessageParser {
     protected Logger logger;
     protected Hub hub;

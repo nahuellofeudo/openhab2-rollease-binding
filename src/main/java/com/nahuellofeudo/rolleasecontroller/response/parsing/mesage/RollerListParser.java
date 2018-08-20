@@ -8,6 +8,13 @@ import org.slf4j.LoggerFactory;
 import com.nahuellofeudo.rolleasecontroller.model.Hub;
 import com.nahuellofeudo.rolleasecontroller.model.Roller;
 
+/**
+ * The most important message parser.
+ * Parses the list of rollers managed by the hub and their positions (0% to 100% closed)
+ *
+ * @author Nahuel Lofeudo
+ *
+ */
 public class RollerListParser extends BaseMessageParser {
     private Logger logger = LoggerFactory.getLogger(RollerListParser.class);
 
