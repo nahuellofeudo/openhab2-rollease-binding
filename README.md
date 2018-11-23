@@ -1,52 +1,48 @@
 # <bindingName> Binding
 
-_Give some details about what this binding is meant for - a protocol, system, specific device._
-
-_If possible, provide some resources like pictures, a YouTube video, etc. to give an impression of what can be done with this binding. You can place such resources into a `doc` folder next to this README.md._
+Highly experimental OpenHAB 2 binding for Rollease Acmeda motorized roller shades.
 
 ## Supported Things
 
-_Please describe the different supported things / devices within this section._
-_Which different types are supported, which models were tested etc.?_
-_Note that it is planned to generate some part of this based on the XML files within ```ESH-INF/thing``` of your binding._
+This binding connects to the Automate Pulse hub and controls Wirefree motors. At this time the only devices confirmed to work are Automate Wirefree tubular motors.
 
 ## Discovery
 
-_Describe the available auto-discovery features here. Mention for what it works and what needs to be kept in mind when using it._
+The binding auto-discovers all motorized rollers already registered to the hub. No per-roller configuration is necessary.
 
 ## Binding Configuration
 
-_If your binding requires or supports general configuration settings, please create a folder ```cfg``` and place the configuration file ```<bindingId>.cfg``` inside it. In this section, you should link to this file and provide some information about the options. The file could e.g. look like:_
+Follow these steps to configure the binding:
 
-```
-# Configuration for the Philips Hue Binding
-#
-# Default secret key for the pairing of the Philips Hue Bridge.
-# It has to be between 10-40 (alphanumeric) characters 
-# This may be changed by the user for security reasons.
-secret=EclipseSmartHome
-```
+1) Install all your motorized roller shades. If they are battery operated make sure that the batteries are charged.
+2) Install your Automate Pulse near your roller shades. Make sure that the roller shades have good signal.
+3) Make sure that your Automate Pulse hub has a static IP address (You may need to configure a static mapping in your router)
+4) Using the Rollease phone app, name all your roller shades and configure all the top and bottom positions. 
+5) Create a Thing of type Rollease Hub, and configure it with the IP address of your hub.
+6) All rollers registered in the hub should automatically appear in your Inbox as new Things. Simply add them to your system.
 
-_Note that it is planned to generate some part of this based on the information that is available within ```ESH-INF/binding``` of your binding._
-
-_If your binding does not offer any generic configurations, you can remove this section completely._
-
-## Thing Configuration
-
-_Describe what is needed to manually configure a thing, either through the (Paper) UI or via a thing-file. This should be mainly about its mandatory and optional configuration parameters. A short example entry for a thing file can help!_
-
-_Note that it is planned to generate some part of this based on the XML files within ```ESH-INF/thing``` of your binding._
+If you have multiple hubs, repeat steps 3-5 for your other hubs
 
 ## Channels
 
-_Here you should provide information about available channel types, what their meaning is and how they can be used._
+Each roller exposes two channels:
 
-_Note that it is planned to generate some part of this based on the XML files within ```ESH-INF/thing``` of your binding._
+* Position: An integer number for how much the roller is *CLOSED*. A value of 0 means all OPEN (rolled up) and 100 means all CLOSED (rolled down). This value should update if the position of the roller is changed through a remote or through the phone app.
+* Battery: What *MAY* be the battery level of the roller. I haven't figured this one out yet. Don't use it.
 
-## Full Example
+## Installation
 
-_Provide a full usage example based on textual configuration files (*.things, *.items, *.sitemap)._
+The installation should be straightforward:
 
-## Any custom content here!
+1) Run *mvn package*
+2) Copy target/org.openhab.binding.rollease-2.x.y.jar to your OpenHAB's *addons* directory
 
-_Feel free to add additional sections for whatever you think should also be mentioned about your binding!_
+## Caveats
+
+This binding was created by reverse-engineering the communication between an Automate Pulse hub and the Rollease Android app. As such, there are gray areas of the protocol that I haven't figured out yet and in many places I just copied verbatim the bytes that the phone app sends to the Automate hub. 
+
+Overall the binding works well enough for me, and does a reasonable job of compensating the unreliable communication between hub and rollers, and maintaining a reliable connection to the hub through disconnections and protocol loss of sync.
+
+The binding can parse enough of the hub's protocol to be able to set and read rollers' positons, but there are many messages for which there are no parsers. These messages are just logged in hex format and ignored.
+
+Your mileage may vary. Feel free to email me if you have feedback (nlofeudo@gmail.com)
