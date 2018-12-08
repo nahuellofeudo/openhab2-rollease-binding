@@ -102,6 +102,8 @@ public class HeaderParser {
             bytes[x] = llio.readByte();
         }
 
+        logger.debug(String.format("Received [%s]", this.toHexList(bytes, length)));
+
         Integer[] type = new Integer[] { bytes[0], bytes[1] };
         MessageParser parser = this.getParserFor(type);
         if (parser != null) {
@@ -110,6 +112,26 @@ public class HeaderParser {
             logger.error(String.format("Parser not found for type [%2xd, %2xd].", type[0], type[1]));
             this.defaultParser.parse(bytes);
         }
+    }
+
+    /**
+     * Takes a sequence of length bytes and creates a String with each byte in hex format, separated by commas
+     *
+     * @param bytes  the array of bytes
+     * @param length the number of bytes in the array
+     * @return a string with the list of bytes in hex format
+     */
+    private Object toHexList(Integer[] bytes, int length) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int x = 0; x < length; x++) {
+            if (x > 0) {
+                sb.append(", ");
+            }
+            sb.append(String.format("%02x", bytes[x]));
+        }
+
+        return sb.toString();
     }
 
     private MessageParser getParserFor(Integer[] type) {
