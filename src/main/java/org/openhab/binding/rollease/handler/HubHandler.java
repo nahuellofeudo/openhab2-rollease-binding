@@ -78,13 +78,24 @@ public class HubHandler extends BaseBridgeHandler
         }
     }
 
+    public void setOpenPosition(String id, DecimalType position) {
+
+        Roller roller = this.getRollerFromId(id);
+        try {
+            hubController.adjustOpenPosition(roller, position.intValue());
+        } catch (Exception e) {
+            logger.error("Could not adjust open position of roller " + id, e);
+        }
+    }
+
+
     public void setPosition(String id, DecimalType position) {
 
         Roller roller = this.getRollerFromId(id);
         try {
             hubController.adjustPosition(roller, position.intValue());
         } catch (Exception e) {
-            logger.error("Could not adjust position of roller " + id, e);
+            logger.error("Could not adjust closed position of roller " + id, e);
         }
     }
 
@@ -120,7 +131,7 @@ public class HubHandler extends BaseBridgeHandler
 
     @Override
     public void rollerPositionChanged(Roller roller, int oldPosition) {
-        ChannelUID positionChannel = new ChannelUID(Utils.thingUID(roller.getId()), Constants.PERCENTAGE_CLOSED);
+        ChannelUID positionChannel = new ChannelUID(Utils.thingUID(roller.getId()), Constants.PERCENTAGE_OPEN);
         updateState(positionChannel, new DecimalType(roller.getPercentClosed()));
     }
 

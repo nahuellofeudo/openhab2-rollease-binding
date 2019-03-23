@@ -40,11 +40,11 @@ class PositionUpdateTask implements Runnable {
     @Override
     public void run() {
         logger.debug("Running position updater task...");
-        int currentPosition = this.hubHandler.getRollerFromId(id).getPercentClosed();
+        int currentPosition = this.hubHandler.getRollerFromId(id).getPercentOpen();
         int displacement = Math.abs(currentPosition - position.intValue());
 
-        // Run a maximum of 5 times.
-        if (this.retries > 4) {
+        // Run a maximum of 7 times.
+        if (this.retries > 6) {
             logger.error(
                     String.format("Failed to update the position of roller %s %d times. Giving up.", id, this.retries));
             return;
@@ -52,7 +52,7 @@ class PositionUpdateTask implements Runnable {
 
         if (displacement > WIGGLE_ROOM) {
             logger.info(String.format("Updating roller %s to position %d", id, position.intValue()));
-            this.hubHandler.setPosition(id, position);
+            this.hubHandler.setOpenPosition(id, position);
 
             // Schedule update based on amount of displacement requested + 1 second
             int actualDelay = ((this.delay * displacement) / 100) + 1000;

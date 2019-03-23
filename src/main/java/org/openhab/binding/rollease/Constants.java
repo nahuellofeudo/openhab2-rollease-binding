@@ -28,7 +28,7 @@ public class Constants {
     public static final String HUB = "rollease-hub";
 
     // List of all Channel ids
-    public static final String PERCENTAGE_CLOSED = "percentage-closed";
+    public static final String PERCENTAGE_OPEN = "percentage-open";
     public static final String BATTERY_LEVEL = "battery-level";
 
     // Keys to store model objects as metadata

@@ -202,6 +202,20 @@ public class Controller {
         globalLock.release();
     }
 
+
+    /**
+     * Convenience method. Takes the parameter in percentage OPEN rather than closed.
+     * Everything else is the same as in adjustPosition
+     * @param roller           the Roller object that represents the roller to adjust
+     * @param openPercentage The new position in the range 0% (all closed) - 100% (all open)
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public void adjustOpenPosition(Roller roller, int openPercentage) throws IOException, InterruptedException {
+        this.adjustPosition(roller, 100 - openPercentage);
+    }
+
+
     /**
      * Register all the different parsers for the multiple types of messages sent by the hub
      *
@@ -386,4 +400,5 @@ public class Controller {
         this.controllerThread.setName("Rollease Controller");
         this.controllerThread.start();
     }
+
 }

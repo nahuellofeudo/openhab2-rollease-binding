@@ -36,6 +36,17 @@ public class Roller {
         return percentClosed;
     }
 
+    public int getPercentOpen() {
+        return 100 - percentClosed;
+    }
+
+
+    public void setPercentOpen(int percentOpen) {
+        if (percentOpen > 100) percentOpen = 100;
+        if (percentOpen < 0) percentOpen = 0;
+        this.setPercentClosed(100 - percentOpen);
+    }
+
     public void setPercentClosed(int percentClosed) {
         int oldPercentClosed = percentClosed;
         this.percentClosed = percentClosed;

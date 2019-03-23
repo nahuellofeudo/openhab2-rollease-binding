@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.2.0" configuration-pid="org.openhab.binding.rollease.discovery" immediate="true" name="org.openhab.binding.rollease.internal.RollerDiscoveryService">
-   <service>
-      <provide interface="org.eclipse.smarthome.config.discovery.DiscoveryService"/>
-   </service>
-   <implementation class="org.openhab.binding.rollease.internal.RollerDiscoveryService"/>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.2.0" immediate="true" name="org.openhab.binding.rollease.internal.RollerDiscoveryService" configuration-pid="org.openhab.binding.rollease.discovery">
+    <service servicefactory="false">
+        <provide interface="org.eclipse.smarthome.config.discovery.DiscoveryService"/>
+    </service>
+    <implementation class="org.openhab.binding.rollease.internal.RollerDiscoveryService"/>
 </scr:component>
