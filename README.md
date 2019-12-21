@@ -27,7 +27,7 @@ If you have multiple hubs, repeat steps 3-5 for your other hubs
 
 Each roller exposes two channels:
 
-* Position: An integer number for how much the roller is *CLOSED*. A value of 0 means all OPEN (rolled up) and 100 means all CLOSED (rolled down). This value should update if the position of the roller is changed through a remote or through the phone app.
+* Position: An integer number for how much the roller is open. A value of 0 means all closed (rolled down) and 100 means all open (rolled up). This value should update if the position of the roller is changed through a remote or through the phone app.
 * Battery: What *MAY* be the battery level of the roller. I haven't figured this one out yet. Don't use it.
 
 ## Installation
