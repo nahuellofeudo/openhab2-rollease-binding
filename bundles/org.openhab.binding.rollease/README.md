@@ -1,4 +1,3 @@
-# <bindingName> Binding
 
 Highly experimental OpenHAB 2 binding for Rollease Acmeda motorized roller shades.
 

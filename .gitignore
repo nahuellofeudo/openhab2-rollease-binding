@@ -1,10 +1,9 @@
-/target/
-/.settings
+*.iml
+target/
+bundles/target
+bundles/org.openhab.binding.rollease/target
+.settings
 .idea
 .classpath
-build.properties
-org.openhab.addons.reactor.iml
-bundles/org.openhab.addons.reactor.bundles.iml
-bundles/target/feature/feature.xml
-bundles/org.openhab.binding.rollease/target
 .project
+build.properties

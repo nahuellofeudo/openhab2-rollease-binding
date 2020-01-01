@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2010-2019 Contributors to the openHAB project
+ *
+ * See the NOTICE file(s) distributed with this work for additional
+ * information.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License 2.0 which is available at
+ * http://www.eclipse.org/legal/epl-2.0
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ */
 package org.openhab.binding.rollease.handler;
 
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -24,7 +36,6 @@ class PositionUpdateTask implements Runnable {
     String id;
     HubHandler hubHandler;
     DecimalType position;
-    int delay = 30000;
     int retries = 0;
     CancelableScheduledExecutorService executor;
 
@@ -55,7 +66,7 @@ class PositionUpdateTask implements Runnable {
             this.hubHandler.setOpenPosition(id, position);
 
             // Schedule update based on amount of displacement requested + 1 second
-            int actualDelay = ((this.delay * displacement) / 100) + 1000;
+            int actualDelay = ((RETRY_DELAY * displacement) / 100) + 1000;
             executor.reschedule(id, this, actualDelay);
             this.retries++;
         } else {

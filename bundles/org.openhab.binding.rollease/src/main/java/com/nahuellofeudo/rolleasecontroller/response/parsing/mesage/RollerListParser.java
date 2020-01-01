@@ -18,8 +18,6 @@ import com.nahuellofeudo.rolleasecontroller.model.Roller;
 public class RollerListParser extends BaseMessageParser {
     private Logger logger = LoggerFactory.getLogger(RollerListParser.class);
 
-    private static int ROLLER_DESCRIPTOR_LENGTH = 54;
-
     public RollerListParser(Hub hub) {
         super(hub);
     }

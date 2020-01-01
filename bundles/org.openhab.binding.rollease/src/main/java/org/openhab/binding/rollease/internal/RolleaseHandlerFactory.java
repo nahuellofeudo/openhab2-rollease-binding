@@ -1,8 +1,8 @@
 /**
- * Copyright (c) 2014,2018 by the respective copyright holders.
+ * Copyright (c) 2010-2019 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
- * information regarding copyright ownership.
+ * information.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -12,11 +12,14 @@
  */
 package org.openhab.binding.rollease.internal;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.config.discovery.DiscoveryService;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.Thing;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
@@ -36,22 +39,29 @@ import org.slf4j.LoggerFactory;
  *
  * @author Nahuel Lofeudo - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class, immediate = true, configurationPid = "org.openhab.binding.rollease")
+@Component(service = ThingHandlerFactory.class)
+@NonNullByDefault
 public class RolleaseHandlerFactory extends BaseThingHandlerFactory {
     private final Logger logger = LoggerFactory.getLogger(RolleaseHandlerFactory.class);
-    RollerDiscoveryService discoveryService;
+    private @Nullable RolleaseDiscoveryService discoveryService;
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS;
-
-    static {
-        SUPPORTED_THING_TYPES_UIDS = new HashSet<>();
-        SUPPORTED_THING_TYPES_UIDS.add(HubHandler.THING_TYPE_UID);
-        SUPPORTED_THING_TYPES_UIDS.add(RollerHandler.THING_TYPE_UID);
-    }
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS =
+        (Set<ThingTypeUID>) Collections.unmodifiableSet(
+            Stream.of(
+                HubHandler.THING_TYPE_UID,
+                RollerHandler.THING_TYPE_UID
+            ).collect(Collectors.toSet())
+        );
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
+        logger.info("Rollease: SupportsThingType " + thingTypeUID.toString());
         return SUPPORTED_THING_TYPES_UIDS.contains(thingTypeUID);
+    }
+
+    public RolleaseHandlerFactory() {
+        super();
+        logger.info("Created RolleaseHandlerFactory.");
     }
 
     @Override
@@ -78,11 +88,11 @@ public class RolleaseHandlerFactory extends BaseThingHandlerFactory {
     }
 
     @Reference
-    public void setDiscoveryService(DiscoveryService discoveryService) {
+    public void setDiscoveryService(RolleaseDiscoveryService discoveryService) {
         this.discoveryService = (RollerDiscoveryService) discoveryService;
     }
 
-    public void unsetDiscoveryService(DiscoveryService discoveryService) {
+    public void unsetDiscoveryService(RolleaseDiscoveryService discoveryService) {
         this.discoveryService = null;
     }
 

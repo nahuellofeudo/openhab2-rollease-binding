@@ -396,6 +396,7 @@ public class Controller {
         this.controllerThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                logger.info("Invoking main loop on controller.");
                 mainLoop();
             }
         });
