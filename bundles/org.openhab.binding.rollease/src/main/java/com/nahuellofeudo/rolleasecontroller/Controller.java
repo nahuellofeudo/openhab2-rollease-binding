@@ -214,7 +214,7 @@ public class Controller {
      * @throws InterruptedException
      */
     public void adjustOpenPosition(Roller roller, int openPercentage) throws IOException, InterruptedException {
-        this.adjustPosition(roller, 100 - openPercentage);
+        this.adjustPosition(roller, openPercentage);
     }
 
 
