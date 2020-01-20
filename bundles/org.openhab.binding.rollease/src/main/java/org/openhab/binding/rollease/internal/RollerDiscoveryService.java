@@ -28,7 +28,6 @@ import org.openhab.binding.rollease.handler.RollerHandler;
 import org.osgi.service.component.annotations.Component;
 
 import com.nahuellofeudo.rolleasecontroller.model.Roller;
-import org.osgi.service.component.annotations.ServiceScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,19 +38,14 @@ import org.slf4j.LoggerFactory;
  * @author Nahuel Lofeudo
  *
  */
-@Component(name = "Rollease Discovery", immediate = true)
+@Component(immediate = true)
 @NonNullByDefault
 public class RollerDiscoveryService extends AbstractDiscoveryService implements DiscoveryService, RolleaseDiscoveryService {
     private final Logger logger = LoggerFactory.getLogger(RollerDiscoveryService.class);
 
-    static {
-        System.err.println("---------------------- Roller discovery service static block ------------\n");
-
-    }
-
     public RollerDiscoveryService() {
         super(1000);
-        logger.info("Starting rollease discovery service (default timeout)");
+        logger.info(" ----- Starting rollease discovery service (default timeout)");
     }
 
     public RollerDiscoveryService(int timeout) throws IllegalArgumentException {

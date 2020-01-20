@@ -14,7 +14,6 @@ package org.openhab.binding.rollease.handler;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Semaphore;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.smarthome.core.library.types.DecimalType;
@@ -25,7 +24,6 @@ import org.eclipse.smarthome.core.types.Command;
 import org.openhab.binding.rollease.Constants;
 import org.openhab.binding.rollease.Utils;
 import org.openhab.binding.rollease.internal.RolleaseDiscoveryService;
-import org.openhab.binding.rollease.internal.RollerDiscoveryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +42,6 @@ public class HubHandler extends BaseBridgeHandler
 
     private Hub hub;
     private Controller hubController;
-    private Semaphore semaphore = new Semaphore(0);
     private RolleaseDiscoveryService discoveryService;
 
     public HubHandler(Bridge bridge, RolleaseDiscoveryService discoveryService) throws Exception {
@@ -64,7 +61,6 @@ public class HubHandler extends BaseBridgeHandler
         this.hubController = new Controller(hub, hostname);
         addHub(hub);
         hubController.connectAndRun();
-        semaphore.acquire();
     }
 
     @Override
@@ -88,7 +84,6 @@ public class HubHandler extends BaseBridgeHandler
     public void hubStatusChanged(HubStatus currentStatus, Hub hub) {
         logger.info("Hub status changed to " + currentStatus.toString());
         if (currentStatus.equals(HubStatus.ONLINE)) {
-            semaphore.release();
         }
     }
 

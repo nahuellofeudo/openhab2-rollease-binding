@@ -13,7 +13,6 @@
 package org.openhab.binding.rollease.internal;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,9 +38,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Nahuel Lofeudo - Initial contribution
  */
-@Component(service = ThingHandlerFactory.class)
+@Component(immediate = true)
 @NonNullByDefault
-public class RolleaseHandlerFactory extends BaseThingHandlerFactory {
+public class RolleaseHandlerFactory extends BaseThingHandlerFactory implements ThingHandlerFactory{
     private final Logger logger = LoggerFactory.getLogger(RolleaseHandlerFactory.class);
     private @Nullable RolleaseDiscoveryService discoveryService;
 
@@ -61,8 +60,9 @@ public class RolleaseHandlerFactory extends BaseThingHandlerFactory {
 
     public RolleaseHandlerFactory() {
         super();
-        logger.info("Created RolleaseHandlerFactory.");
+        logger.info(" ----- Created RolleaseHandlerFactory.");
     }
+
 
     @Override
     protected @Nullable ThingHandler createHandler(@Nullable Thing thing) {
