@@ -27,5 +27,4 @@ public class NullResponseParser implements MessageParser {
     public boolean canParse(Integer[] type) {
         return true;
     }
-
 }

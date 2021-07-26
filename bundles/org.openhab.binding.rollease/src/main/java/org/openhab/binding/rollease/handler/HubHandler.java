@@ -16,14 +16,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.smarthome.core.library.types.DecimalType;
-import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
-import org.eclipse.smarthome.core.types.Command;
 import org.openhab.binding.rollease.Constants;
 import org.openhab.binding.rollease.Utils;
 import org.openhab.binding.rollease.internal.RolleaseDiscoveryService;
+import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.thing.Bridge;
+import org.openhab.core.thing.ChannelUID;
+import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingTypeUID;
+import org.openhab.core.thing.binding.BaseBridgeHandler;
+import org.openhab.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +35,6 @@ import com.nahuellofeudo.rolleasecontroller.listener.HubStatusListener;
 import com.nahuellofeudo.rolleasecontroller.listener.RollerStateListener;
 import com.nahuellofeudo.rolleasecontroller.model.Hub;
 import com.nahuellofeudo.rolleasecontroller.model.Roller;
-import org.eclipse.smarthome.core.thing.Bridge;
 
 public class HubHandler extends BaseBridgeHandler
         implements HubStatusListener, HubRollersListener, RollerStateListener {
@@ -54,13 +55,18 @@ public class HubHandler extends BaseBridgeHandler
         }
 
         // Create an instance of this hub
-        logger.info("Creating hub Thing for host " + hostname);
+        logger.debug("Creating hub Thing for host " + hostname);
         this.hub = new Hub();
         this.hub.addHubStatusListener(this);
         this.hub.addRollerListener(this);
         this.hubController = new Controller(hub, hostname);
         addHub(hub);
+    }
+
+    @Override
+    public void initialize() {
         hubController.connectAndRun();
+        updateStatus(ThingStatus.ONLINE);
     }
 
     @Override
@@ -70,7 +76,7 @@ public class HubHandler extends BaseBridgeHandler
 
     @Override
     public void rollerAdded(Roller newRoller, Hub hub) {
-        logger.info(String.format("Received notification of new roller. ID: %012x.", newRoller.getId()));
+        logger.debug(String.format("Received notification of new roller. ID: %012x.", newRoller.getId()));
         this.discoveryService.addRoller(newRoller, this.getThing());
         newRoller.addStateListener(this);
         this.rollerPositionChanged(newRoller, 0);
@@ -82,7 +88,7 @@ public class HubHandler extends BaseBridgeHandler
 
     @Override
     public void hubStatusChanged(HubStatus currentStatus, Hub hub) {
-        logger.info("Hub status changed to " + currentStatus.toString());
+        logger.debug("Hub status changed to " + currentStatus.toString());
         if (currentStatus.equals(HubStatus.ONLINE)) {
         }
     }
@@ -96,7 +102,6 @@ public class HubHandler extends BaseBridgeHandler
             logger.error("Could not adjust open position of roller " + id, e);
         }
     }
-
 
     public void setPosition(String id, DecimalType position) {
 

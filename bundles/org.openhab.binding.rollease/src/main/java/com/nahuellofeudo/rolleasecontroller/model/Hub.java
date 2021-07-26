@@ -52,7 +52,6 @@ public class Hub {
 
     public String getUsername() {
         return username;
-
     }
 
     public void setUsername(String username) {
@@ -116,5 +115,4 @@ public class Hub {
             listener.hubStatusChanged(currentStatus, this);
         }
     }
-
 }

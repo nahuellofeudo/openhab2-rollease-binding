@@ -7,3 +7,4 @@ bundles/org.openhab.binding.rollease/target
 .classpath
 .project
 build.properties
+.vscode 

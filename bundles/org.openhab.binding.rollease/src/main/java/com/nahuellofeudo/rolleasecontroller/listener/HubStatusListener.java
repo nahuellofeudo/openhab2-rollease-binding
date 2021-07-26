@@ -9,5 +9,6 @@ public interface HubStatusListener {
         ERROR,
         ONLINE
     }
+
     public void hubStatusChanged(HubStatus currentStatus, Hub hub);
 }

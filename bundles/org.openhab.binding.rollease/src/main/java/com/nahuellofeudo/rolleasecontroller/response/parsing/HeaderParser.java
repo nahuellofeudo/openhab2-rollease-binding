@@ -117,7 +117,7 @@ public class HeaderParser {
     /**
      * Takes a sequence of length bytes and creates a String with each byte in hex format, separated by commas
      *
-     * @param bytes  the array of bytes
+     * @param bytes the array of bytes
      * @param length the number of bytes in the array
      * @return a string with the list of bytes in hex format
      */

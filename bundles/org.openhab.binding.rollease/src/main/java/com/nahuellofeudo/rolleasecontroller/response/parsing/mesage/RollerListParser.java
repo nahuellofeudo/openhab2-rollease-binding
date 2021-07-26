@@ -76,5 +76,4 @@ public class RollerListParser extends BaseMessageParser {
         }
         return;
     }
-
 }

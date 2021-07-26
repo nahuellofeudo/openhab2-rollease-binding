@@ -37,8 +37,10 @@ public class Roller {
     }
 
     public void setPercentOpen(int percentOpen) {
-        if (percentOpen > 100) percentOpen = 100;
-        if (percentOpen < 0) percentOpen = 0;
+        if (percentOpen > 100)
+            percentOpen = 100;
+        if (percentOpen < 0)
+            percentOpen = 0;
 
         int oldPercentOpen = this.percentOpen;
         this.percentOpen = percentOpen;
@@ -73,7 +75,6 @@ public class Roller {
         for (RollerStateListener listener : stateListeners) {
             listener.rollerBatteryChanged(this, oldBatteryLevel);
         }
-
     }
 
     public int getBatteryLevel() {

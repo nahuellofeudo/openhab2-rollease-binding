@@ -58,5 +58,4 @@ public abstract class BaseMessageParser implements MessageParser {
         int length = this.toInteger(bytes, first, 2);
         return this.toString(bytes, first + 2, length);
     }
-
 }

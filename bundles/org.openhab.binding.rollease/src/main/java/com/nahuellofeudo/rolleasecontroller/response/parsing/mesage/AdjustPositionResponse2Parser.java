@@ -45,5 +45,4 @@ public class AdjustPositionResponse2Parser extends BaseMessageParser {
                 percentClosed));
         return;
     }
-
 }

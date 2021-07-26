@@ -14,5 +14,4 @@ public interface MessageParser {
     public void parse(Integer[] bytes) throws IOException;
 
     public boolean canParse(Integer[] type);
-
 }

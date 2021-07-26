@@ -19,14 +19,14 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.thing.Bridge;
-import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
 import org.openhab.binding.rollease.handler.HubHandler;
 import org.openhab.binding.rollease.handler.RollerHandler;
+import org.openhab.core.thing.Bridge;
+import org.openhab.core.thing.Thing;
+import org.openhab.core.thing.ThingTypeUID;
+import org.openhab.core.thing.binding.BaseThingHandlerFactory;
+import org.openhab.core.thing.binding.ThingHandler;
+import org.openhab.core.thing.binding.ThingHandlerFactory;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -40,17 +40,12 @@ import org.slf4j.LoggerFactory;
  */
 @Component(immediate = true)
 @NonNullByDefault
-public class RolleaseHandlerFactory extends BaseThingHandlerFactory implements ThingHandlerFactory{
+public class RolleaseHandlerFactory extends BaseThingHandlerFactory implements ThingHandlerFactory {
     private final Logger logger = LoggerFactory.getLogger(RolleaseHandlerFactory.class);
     private @Nullable RolleaseDiscoveryService discoveryService;
 
-    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS =
-        (Set<ThingTypeUID>) Collections.unmodifiableSet(
-            Stream.of(
-                HubHandler.THING_TYPE_UID,
-                RollerHandler.THING_TYPE_UID
-            ).collect(Collectors.toSet())
-        );
+    private static final Set<ThingTypeUID> SUPPORTED_THING_TYPES_UIDS = (Set<ThingTypeUID>) Collections.unmodifiableSet(
+            Stream.of(HubHandler.THING_TYPE_UID, RollerHandler.THING_TYPE_UID).collect(Collectors.toSet()));
 
     @Override
     public boolean supportsThingType(ThingTypeUID thingTypeUID) {
@@ -62,7 +57,6 @@ public class RolleaseHandlerFactory extends BaseThingHandlerFactory implements T
         super();
         logger.info(" ----- Created RolleaseHandlerFactory.");
     }
-
 
     @Override
     protected @Nullable ThingHandler createHandler(@Nullable Thing thing) {
@@ -95,5 +89,4 @@ public class RolleaseHandlerFactory extends BaseThingHandlerFactory implements T
     public void unsetDiscoveryService(RolleaseDiscoveryService discoveryService) {
         this.discoveryService = null;
     }
-
 }

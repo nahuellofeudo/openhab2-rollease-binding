@@ -13,15 +13,16 @@
 package org.openhab.binding.rollease.handler;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.smarthome.core.library.types.DecimalType;
-import org.eclipse.smarthome.core.thing.Bridge;
-import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
-import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.RefreshType;
 import org.openhab.binding.rollease.Constants;
+import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.thing.Bridge;
+import org.openhab.core.thing.ChannelUID;
+import org.openhab.core.thing.Thing;
+import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingTypeUID;
+import org.openhab.core.thing.binding.BaseThingHandler;
+import org.openhab.core.types.Command;
+import org.openhab.core.types.RefreshType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,11 @@ public class RollerHandler extends BaseThingHandler {
     }
 
     @Override
+    public void initialize() {
+        updateStatus(ThingStatus.ONLINE);
+    }
+
+    @Override
     public void handleCommand(@NonNull ChannelUID channelUID, Command command) {
         logger.debug("Received command " + command.toFullString() + " for channelUID " + channelUID.toString());
         if (command.getClass().equals(RefreshType.class)) {
@@ -54,7 +60,6 @@ public class RollerHandler extends BaseThingHandler {
             this.executor.schedule(rollerId,
                     new PositionUpdateTask(this.getHubHandler(), rollerId, position, this.executor));
         }
-
     }
 
     private HubHandler getHubHandler() {

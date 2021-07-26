@@ -34,5 +34,4 @@ public class Constants {
 
     // Keys to store model objects as metadata
     public static final String ROLLER_OBJECT = "roller";
-
 }

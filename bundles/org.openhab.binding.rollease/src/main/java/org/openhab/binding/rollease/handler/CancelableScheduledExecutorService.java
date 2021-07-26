@@ -41,7 +41,6 @@ public class CancelableScheduledExecutorService {
     public CancelableScheduledExecutorService() {
         this.executor = Executors.newSingleThreadScheduledExecutor();
         this.futures = new HashMap<>();
-
     }
 
     public synchronized void reschedule(String id, PositionUpdateTask task, int delay) {

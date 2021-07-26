@@ -12,7 +12,7 @@
  */
 package org.openhab.binding.rollease;
 
-import org.eclipse.smarthome.core.thing.ThingUID;
+import org.openhab.core.thing.ThingUID;
 
 /**
  * This class contains some utility methods used in multiple places in the rest of the code.
@@ -21,8 +21,8 @@ import org.eclipse.smarthome.core.thing.ThingUID;
  *
  */
 public class Utils {
-    public static ThingUID thingUID(long id) {
-        return new ThingUID(Constants.BINDING_ID, Constants.ROLLER, String.format("%012x", id));
+    public static ThingUID thingUID(ThingUID bridgeUID, long id) {
+        return new ThingUID(Constants.BINDING_ID, Constants.ROLLER, bridgeUID.getId(), String.format("%012x", id));
     }
 
     public static long id(ThingUID uid) {

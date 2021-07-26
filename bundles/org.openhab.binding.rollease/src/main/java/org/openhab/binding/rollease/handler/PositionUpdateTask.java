@@ -12,7 +12,7 @@
  */
 package org.openhab.binding.rollease.handler;
 
-import org.eclipse.smarthome.core.library.types.DecimalType;
+import org.openhab.core.library.types.DecimalType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +73,5 @@ class PositionUpdateTask implements Runnable {
             logger.info(String.format("Not updating roller %s. Current position %d is close to requested %d", id,
                     currentPosition, position.intValue()));
         }
-
     }
 }
